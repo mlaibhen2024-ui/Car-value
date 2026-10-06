@@ -1,35 +1,104 @@
-.evaluate{
+.evaluate {
     min-height: 100vh;
-    display:flex;
-    align-items:center;
+    display: flex;
+    align-items: center;
     padding: 120px 0 4rem;
     background:
-        radial-gradient(1100px 500px at 85% -10%, rgba(229,83,62,0.08), transparent 60%),
+        radial-gradient(
+            1100px 500px at 85% -10%,
+            rgba(229, 83, 62, 0.08),
+            transparent 60%
+        ),
         var(--cloud);
 }
-.evaluate-grid{
-    display:grid;
+
+.evaluate-grid {
+    display: grid;
     grid-template-columns: 1.1fr 0.9fr;
     gap: 2.5rem;
-    align-items:stretch;
+    align-items: stretch;
 }
 
-/* ---- Form card ---- */
-.form-card{ padding: 2.5rem; }
-.form-card .eyebrow{ display:block; margin-bottom:.5rem; }
-.form-card h1{ font-size:1.5rem; margin-bottom:.4rem; }
-.form-card .sub{ font-size:0.88rem; color:var(--ink-soft); margin-bottom:1.75rem; }
 
-.evaluate-form{ display:flex; flex-direction:column; gap: 1rem; }
-.form-row{ display:flex; gap:1rem; }
-.field{ flex:1; display:flex; flex-direction:column; gap:.4rem; }
-.field label{
-    font-size: 0.72rem; text-transform:uppercase; letter-spacing:.06em;
-    color: var(--ink-soft); font-weight:600;
+/* -------------------------
+   Form card
+------------------------- */
+
+.form-card {
+    padding: 2.5rem;
 }
-.field .hint{ font-size:0.72rem; color:#9a9fb3; text-transform:none; letter-spacing:0; font-weight:400; }
 
-.field input, .field select{
+.form-card .eyebrow {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.form-card h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.form-card .sub {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    line-height: 1.65;
+    margin-bottom: 1.75rem;
+}
+
+
+/* -------------------------
+   Form
+------------------------- */
+
+.evaluate-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.field label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    font-weight: 600;
+}
+
+.field .hint {
+    font-size: 0.72rem;
+    color: #9a9fb3;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 400;
+}
+
+
+/* Helper text under VIN / price */
+
+.field-help {
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+}
+
+
+/* Inputs */
+
+.field input,
+.field select {
+    width: 100%;
     background: var(--cloud);
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
@@ -37,40 +106,183 @@
     font-family: var(--font-body);
     font-size: 0.92rem;
     color: var(--ink);
-    outline:none;
-    transition: box-shadow .15s ease, border-color .15s ease;
+    outline: none;
+
+    transition:
+        box-shadow 0.15s ease,
+        border-color 0.15s ease,
+        background 0.15s ease;
 }
-.field input::placeholder{ color:#a7abbd; }
-.field input:focus, .field select:focus{
+
+.field input::placeholder {
+    color: #a7abbd;
+}
+
+.field input:focus,
+.field select:focus {
     border-color: var(--ember);
-    box-shadow: 0 0 0 3px rgba(229,83,62,0.14);
+    box-shadow:
+        0 0 0 3px rgba(229, 83, 62, 0.14);
 }
-.field select{ appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236c7283'%3E%3Cpath d='M5.5 7.5l4.5 4.5 4.5-4.5H5.5z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position: right 12px center; padding-right: 34px; }
 
-.evaluate-form .btn{ margin-top: .5rem; }
-.form-foot{ margin-top:1rem; font-size:0.8rem; color:var(--ink-soft); text-align:center; }
-.form-foot a{ color: var(--ember); font-weight:600; }
 
-/* ---- "what you'll get" side panel ---- */
-.side-panel{
-    background: linear-gradient(165deg, var(--ink), #101b52);
-    color:#fff;
+/* Invalid form fields */
+
+.field input:invalid:not(:placeholder-shown) {
+    border-color: var(--ember);
+}
+
+
+/* Select arrow */
+
+.field select {
+    appearance: none;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236c7283'%3E%3Cpath d='M5.5 7.5l4.5 4.5 4.5-4.5H5.5z'/%3E%3C/svg%3E");
+
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 34px;
+}
+
+
+/* Disabled model dropdown */
+
+.field select:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+
+/* -------------------------
+   Submit button
+------------------------- */
+
+.evaluate-form .btn {
+    margin-top: 0.5rem;
+}
+
+.evaluate-form .btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+
+/* MarketCheck loading message */
+
+.valuation-status {
+    min-height: 18px;
+    margin: -0.25rem 0 0;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+}
+
+
+/* Footer under form */
+
+.form-foot {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    text-align: center;
+}
+
+.form-foot a {
+    color: var(--ember);
+    font-weight: 600;
+}
+
+
+/* -------------------------
+   What you'll get panel
+------------------------- */
+
+.side-panel {
+    background:
+        linear-gradient(
+            165deg,
+            var(--ink),
+            #101b52
+        );
+
+    color: #fff;
+
     border-radius: var(--radius-lg);
     padding: 2.25rem;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     gap: 1.5rem;
 }
-.side-panel h2{ font-size:1.3rem; }
-.side-panel > p{ font-size:0.88rem; color:rgba(255,255,255,.7); line-height:1.7; }
-.side-list{ display:flex; flex-direction:column; gap:1.1rem; }
-.side-item{ display:flex; gap:.9rem; align-items:flex-start; }
-.side-item .bx{ font-size:1.2rem; color: var(--ember); flex-shrink:0; margin-top:2px; }
-.side-item h4{ font-size:0.92rem; margin-bottom:.2rem; }
-.side-item p{ font-size:0.8rem; color:rgba(255,255,255,.65); line-height:1.6; }
 
-@media (max-width: 980px){
-    .evaluate-grid{ grid-template-columns:1fr; }
-    .form-row{ flex-direction:column; }
+.side-panel h2 {
+    font-size: 1.3rem;
+}
+
+.side-panel > p {
+    font-size: 0.88rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.7;
+}
+
+.side-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.side-item {
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+}
+
+.side-item .bx {
+    font-size: 1.2rem;
+    color: var(--ember);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.side-item h4 {
+    font-size: 0.92rem;
+    margin-bottom: 0.2rem;
+}
+
+.side-item p {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.6;
+}
+
+
+/* -------------------------
+   Responsive
+------------------------- */
+
+@media (max-width: 980px) {
+
+    .evaluate-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .evaluate {
+        padding-top: 100px;
+    }
+
+    .form-card,
+    .side-panel {
+        padding: 1.5rem;
+    }
 }

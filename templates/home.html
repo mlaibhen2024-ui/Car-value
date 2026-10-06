@@ -11,10 +11,13 @@
     <div class="home-container container">
 
         <div class="home-copy">
-            <span class="eyebrow">Free · No signup required</span>
+            <span class="eyebrow">Free · Fast vehicle estimates</span>
             <h1>Find the best <span>price for your car today.</span></h1>
-            <p>Enter your vehicle details and get an instant breakdown of your car's real market
-               value — pulled from multiple pricing sources and explained in plain English.</p>
+            <p>
+                Enter your vehicle details and get an instant value estimate based on
+                depreciation, mileage, condition, and current market data when available.
+            </p>
+
             <div class="cta-row">
                 <a href="/evaluate" class="btn btn-accent">Value My Car →</a>
                 <span class="cta-note">Takes about 60 seconds</span>
@@ -24,79 +27,129 @@
         <div class="preview-card">
             <div class="preview-head">
                 <span>Sample estimate</span>
-                <span class="preview-tag">92% confidence</span>
+                <span class="preview-tag">Example</span>
             </div>
+
             <div>
-                <div style="font-size:0.85rem; color:var(--ink-soft); margin-bottom:.15rem;">2020 Honda Civic</div>
+                <div style="font-size:0.85rem; color:var(--ink-soft); margin-bottom:.15rem;">
+                    2020 Honda Civic
+                </div>
                 <div class="preview-value">$18,450</div>
             </div>
+
             <div class="preview-rows">
-                <div class="preview-row"><span>Trade-in value</span><strong>$16,200</strong></div>
-                <div class="preview-row"><span>Private party value</span><strong>$18,450</strong></div>
-                <div class="preview-row"><span>Dealer retail value</span><strong>$20,700</strong></div>
+                <div class="preview-row">
+                    <span>Trade-in estimate</span>
+                    <strong>$16,200</strong>
+                </div>
+                <div class="preview-row">
+                    <span>Private party estimate</span>
+                    <strong>$18,450</strong>
+                </div>
+                <div class="preview-row">
+                    <span>Dealer retail estimate</span>
+                    <strong>$20,700</strong>
+                </div>
             </div>
         </div>
 
     </div>
 </section>
+
 
 <section class="selling" id="selling">
     <div class="container">
+
         <div class="heading">
-            <span class="eyebrow">Sell Your Car</span>
-            <h2>Every number explained. Never get lowballed again.</h2>
+            <span class="eyebrow">Understand Your Car's Value</span>
+            <h2>More than a number. See what affects your estimate.</h2>
         </div>
 
         <div class="selling-content">
+
             <div class="selling-text">
-                <h3>Why sellers choose us</h3>
-                <p>Most valuation tools hand you a number and leave you guessing. We tell you
-                    <strong>why</strong> your car is worth what it's worth, in plain English you
-                    can actually use in a negotiation.</p>
-                <p>Every estimate is cross-checked against several pricing sources — not just one
-                    model — so you're not negotiating on a guess.</p>
+                <h3>Make a more informed decision</h3>
+
+                <p>
+                    CarValue estimates your vehicle's value using factors such as its
+                    original price, age, mileage, vehicle type, and condition.
+                </p>
+
+                <p>
+                    When market data is available, we also compare our estimate with
+                    MarketCheck data so you can see how your vehicle compares with
+                    current market pricing.
+                </p>
+
                 <a href="/evaluate" class="btn btn-primary">Value My Car →</a>
             </div>
 
+
             <div class="value-grid">
+
                 <div class="value-card">
                     <i class="bx bx-list-check"></i>
                     <h4>Simple, guided steps</h4>
-                    <p>A short form with dropdowns for the details that matter — no confusing free-text fields to get wrong.</p>
+                    <p>
+                        Enter the important details about your vehicle through a
+                        straightforward valuation form.
+                    </p>
                 </div>
+
                 <div class="value-card">
                     <i class="bx bx-git-compare"></i>
-                    <h4>Three prices, not one</h4>
-                    <p>Trade-in, private-party, and dealer retail values, so you know your number for every selling path.</p>
+                    <h4>Three price scenarios</h4>
+                    <p>
+                        See estimated trade-in, private-party, and dealer retail values
+                        to understand different selling options.
+                    </p>
                 </div>
+
                 <div class="value-card">
                     <i class="bx bx-line-chart"></i>
-                    <h4>Live market trends</h4>
-                    <p>See how similar vehicles near you are priced right now, not last quarter's average.</p>
+                    <h4>Market comparison</h4>
+                    <p>
+                        When available, MarketCheck data gives you another reference
+                        point for understanding your vehicle's current market value.
+                    </p>
                 </div>
+
                 <div class="value-card">
                     <i class="bx bx-layer"></i>
-                    <h4>Multiple sources, one answer</h4>
-                    <p>Every recommendation is curated from several pricing signals, not a single black-box model.</p>
+                    <h4>Clear value breakdown</h4>
+                    <p>
+                        See how factors such as age, mileage, and condition contribute
+                        to your estimated vehicle value.
+                    </p>
                 </div>
+
             </div>
         </div>
     </div>
 </section>
 
+
 <section class="team" id="team-data">
     <div class="container">
+
         <div class="heading">
             <span class="eyebrow">Our Team</span>
             <h2>Meet the team</h2>
         </div>
 
         <div class="team-container">
+
             <div class="team-box">
-                <img src="{{ url_for('static', filename='images/person1.jpg') }}" alt="" class="team-img">
+                <img
+                    src="{{ url_for('static', filename='images/person1.jpg') }}"
+                    alt="Mary-Kate Laibhen"
+                    class="team-img"
+                >
+
                 <div class="team-data">
                     <h3>Mary-Kate Laibhen</h3>
                     <span>Developer</span>
+
                     <div class="team-social">
                         <a href="#"><i class="bx bxl-facebook"></i></a>
                         <a href="#"><i class="bx bxl-twitter"></i></a>
@@ -104,11 +157,19 @@
                     </div>
                 </div>
             </div>
+
+
             <div class="team-box">
-                <img src="{{ url_for('static', filename='images/person2.jpg') }}" alt="" class="team-img">
+                <img
+                    src="{{ url_for('static', filename='images/person2.jpg') }}"
+                    alt="Xavier Rush"
+                    class="team-img"
+                >
+
                 <div class="team-data">
                     <h3>Xavier Rush</h3>
                     <span>Developer</span>
+
                     <div class="team-social">
                         <a href="#"><i class="bx bxl-facebook"></i></a>
                         <a href="#"><i class="bx bxl-twitter"></i></a>
@@ -116,79 +177,130 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </section>
 
+
 <section class="faq" id="faq">
     <div class="container">
+
         <div class="heading">
             <span class="eyebrow">Frequently Asked</span>
             <h2>Your questions, answered.</h2>
         </div>
 
         <div class="accordion-container">
+
             <div class="accordion-item">
                 <div class="accordion-header">
-                    <h3 class="accordion-title">How is my car's value calculated?</h3>
+                    <h3 class="accordion-title">
+                        How is my car's value calculated?
+                    </h3>
                     <i class="bx bx-plus accordion-icon"></i>
                 </div>
+
                 <div class="accordion-content">
-                    <p class="accordion-answer">We combine your vehicle's make, model, age, mileage, and
-                        condition with several independent pricing sources and current market trends,
-                        then reconcile them into one estimate.</p>
+                    <p class="accordion-answer">
+                        CarValue uses your vehicle's original price, age, mileage,
+                        vehicle type, and condition to calculate an independent estimate.
+                        When available, MarketCheck market data is shown alongside the
+                        estimate for comparison.
+                    </p>
                 </div>
             </div>
+
+
             <div class="accordion-item">
                 <div class="accordion-header">
-                    <h3 class="accordion-title">Can I use this value when selling my car?</h3>
+                    <h3 class="accordion-title">
+                        Can I use this value when selling my car?
+                    </h3>
                     <i class="bx bx-plus accordion-icon"></i>
                 </div>
+
                 <div class="accordion-content">
-                    <p class="accordion-answer">Yes. You'll get trade-in, private-party, and dealer
-                        retail figures, so you have the right number no matter how you sell.</p>
+                    <p class="accordion-answer">
+                        CarValue can help you understand possible trade-in,
+                        private-party, and dealer retail price ranges. The estimates
+                        should be used as a reference when researching or negotiating
+                        the sale of your vehicle.
+                    </p>
                 </div>
             </div>
+
+
             <div class="accordion-item">
                 <div class="accordion-header">
-                    <h3 class="accordion-title">How often do vehicle values change?</h3>
+                    <h3 class="accordion-title">
+                        Where does the market value come from?
+                    </h3>
                     <i class="bx bx-plus accordion-icon"></i>
                 </div>
+
                 <div class="accordion-content">
-                    <p class="accordion-answer">Market prices shift with supply, demand, season, and the
-                        economy — we recommend re-checking your value every few months.</p>
+                    <p class="accordion-answer">
+                        When available, current market-value information is retrieved
+                        from MarketCheck using your vehicle information, VIN, mileage,
+                        and ZIP code.
+                    </p>
                 </div>
             </div>
+
+
             <div class="accordion-item">
                 <div class="accordion-header">
-                    <h3 class="accordion-title">What information do I need?</h3>
+                    <h3 class="accordion-title">
+                        What information do I need?
+                    </h3>
                     <i class="bx bx-plus accordion-icon"></i>
                 </div>
+
                 <div class="accordion-content">
-                    <p class="accordion-answer">Just your car's make, model, original price, age, mileage,
-                        and vehicle type — pick most of it from dropdowns to avoid typos.</p>
+                    <p class="accordion-answer">
+                        You'll need your vehicle's make, model, original price, age,
+                        mileage, vehicle type, condition, VIN, and ZIP code.
+                    </p>
                 </div>
             </div>
+
+
             <div class="accordion-item">
                 <div class="accordion-header">
-                    <h3 class="accordion-title">Does accident history affect my car's value?</h3>
+                    <h3 class="accordion-title">
+                        Does vehicle condition affect my estimate?
+                    </h3>
                     <i class="bx bx-plus accordion-icon"></i>
                 </div>
+
                 <div class="accordion-content">
-                    <p class="accordion-answer">Yes — vehicles with accident history typically carry a
-                        lower value than comparable clean-history vehicles.</p>
+                    <p class="accordion-answer">
+                        Yes. Vehicle condition is one of the factors used by CarValue's
+                        estimation model, along with age, mileage, original price, and
+                        vehicle type.
+                    </p>
                 </div>
             </div>
+
+
             <div class="accordion-item">
                 <div class="accordion-header">
-                    <h3 class="accordion-title">Can I compare multiple vehicles?</h3>
+                    <h3 class="accordion-title">
+                        Can I compare multiple vehicles?
+                    </h3>
                     <i class="bx bx-plus accordion-icon"></i>
                 </div>
+
                 <div class="accordion-content">
-                    <p class="accordion-answer">Yes — run as many estimates as you like and check your
-                        past queries anytime from the Past Valuations page.</p>
+                    <p class="accordion-answer">
+                        Yes. You can run multiple estimates, and your previous
+                        valuations are available from the Past Valuations page while
+                        you're signed in.
+                    </p>
                 </div>
             </div>
+
         </div>
     </div>
 </section>

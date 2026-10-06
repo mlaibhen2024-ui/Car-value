@@ -14,9 +14,12 @@
 
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-    <div class="flash-stack container">
+    <div class="toast-stack" id="toastStack">
         {% for category, message in messages %}
-        <div class="flash flash-{{ category|default('success') }}">{{ message }}</div>
+        <div class="toast toast-{{ category|default('success') }}">
+            <span>{{ message }}</span>
+            <button type="button" class="toast-close" aria-label="Dismiss">&times;</button>
+        </div>
         {% endfor %}
     </div>
     {% endif %}
@@ -46,7 +49,9 @@
                     <input type="search" placeholder="Search make, model, or a past query…">
                 </div>
                 {% if session.get('user') %}
-                <a href="{{ url_for('logout') }}" class="btn btn-ghost">Logout</a>
+                    <form action="{{ url_for('logout') }}" method="post" class="logout-form">
+                        <button type="submit" class="logout-button">Logout</button>
+                    </form>
                 {% else %}
                 <a href="{{ url_for('login') }}" class="btn btn-ghost js-open-auth" data-panel="login">Login</a>
                 <a href="{{ url_for('signup') }}" class="btn btn-accent js-open-auth" data-panel="signup">Sign Up</a>

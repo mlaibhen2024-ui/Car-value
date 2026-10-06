@@ -27,12 +27,4 @@ def get_recommendation(age, mileage, estimated_value=None, price=None):
 
 
 def get_ai_recommendation(age, mileage, price, estimated_value):
-<<<<<<< HEAD
-<<<<<<< HEAD
     return None
-=======
-    return None
->>>>>>> 6b61039cf293e630bba18734b0d0032baf1eab01
-=======
-    return None
->>>>>>> 6b61039cf293e630bba18734b0d0032baf1eab01

@@ -10,99 +10,215 @@
     <div class="container evaluate-grid">
 
         <div class="form-card surface">
-            <span class="eyebrow">Step 1 of 1</span>
-            <h1>Tell us about your car</h1>
-            <p class="sub">Pick from the dropdowns where you can — it keeps the estimate accurate and avoids typos.</p>
+            <span class="eyebrow">Vehicle valuation</span>
 
-            <form class="evaluate-form" action="/calculate" method="post">
+            <h1>Tell us about your car</h1>
+
+            <p class="sub">
+                We'll combine our depreciation model with current
+                MarketCheck data to give you a clearer picture of
+                your vehicle's value.
+            </p>
+
+            <form class="evaluate-form" id="valuation-form" action="{{ url_for('calculate') }}" method="post">
+
+                <!-- VIN -->
+                <div class="field">
+                    <label for="vin">
+                        VIN
+                        <span class="hint">— used to check current market value</span>
+                    </label>
+
+                    <input type="text" id="vin" name="vin" placeholder="Enter 17-character VIN" minlength="17"
+                        maxlength="17" pattern="[A-HJ-NPR-Za-hj-npr-z0-9]{17}" autocomplete="off" required>
+
+                    <small class="field-help">
+                        Your VIN helps us match your vehicle with current
+                        market pricing. Letters I, O, and Q are not used in VINs.
+                    </small>
+                </div>
+
+                <!-- ZIP -->
+                <div class="field">
+                    <label for="zip_code">
+                        ZIP code
+                        <span class="hint">— used for regional market pricing</span>
+                    </label>
+
+                    <input type="text" id="zip_code" name="zip_code" placeholder="e.g. 80903" inputmode="numeric"
+                        maxlength="5" pattern="[0-9]{5}" autocomplete="postal-code" required>
+                </div>
+
+                <!-- Make + Model -->
                 <div class="form-row">
                     <div class="field">
                         <label for="make">Make</label>
+
                         <select id="make" name="make" required>
-                            <option value="" disabled {% if not result %}selected{% endif %}>Select a make</option>
+                            <option value="" disabled selected>Select a make</option>
+
                             {% for make in makes %}
-                            <option value="{{ make }}" {% if result and result.make == make %}selected{% endif %}>{{ make }}</option>
+                            <option value="{{ make }}">{{ make }}</option>
                             {% endfor %}
                         </select>
                     </div>
+
                     <div class="field">
                         <label for="model">Model</label>
-                        <select id="model" name="model" required>
+
+                        <select id="model" name="model" required disabled>
                             <option value="" disabled selected>Select a make first</option>
                         </select>
                     </div>
                 </div>
-
+                <!-- Original Price -->
                 <div class="field">
-                    <label for="price">Original price ($)</label>
-                    <input type="number" id="price" name="price" placeholder="e.g. 30000" required min="0"
-                        value="{{ result.price if result else '' }}">
+                    <label for="price">
+                        Original price ($)
+                    </label>
+
+                    <input type="number" id="price" name="price" placeholder="e.g. 30000" min="1" step="1" required>
+
+                    <small class="field-help">
+                        Enter the vehicle's original purchase price or MSRP.
+                    </small>
                 </div>
 
+                <!-- Age + Mileage -->
                 <div class="form-row">
+
                     <div class="field">
                         <label for="age">Age (years)</label>
-                        <input type="number" id="age" name="age" placeholder="e.g. 5" required min="0" max="40"
-                            value="{{ result.age if result else '' }}">
+
+                        <input type="number" id="age" name="age" placeholder="e.g. 5" min="0" max="100" required>
                     </div>
+
                     <div class="field">
                         <label for="mileage">Mileage</label>
-                        <input type="number" id="mileage" name="mileage" placeholder="e.g. 60000" required min="0"
-                            value="{{ result.mileage if result else '' }}">
+
+                        <input type="number" id="mileage" name="mileage" placeholder="e.g. 60000" min="0" required>
                     </div>
+
                 </div>
 
+                <!-- Vehicle Type -->
                 <div class="field">
-                    <label for="vehicle_type">Vehicle type <span class="hint">— affects depreciation curve</span></label>
-                    <select id="vehicle_type" name="vehicle_type">
-                        <option value="sedan" {% if result and result.vehicle_type=='sedan' %}selected{% endif %}>Sedan</option>
-                        <option value="suv" {% if result and result.vehicle_type=='suv' %}selected{% endif %}>SUV</option>
-                        <option value="truck" {% if result and result.vehicle_type=='truck' %}selected{% endif %}>Truck</option>
-                        <option value="luxury" {% if result and result.vehicle_type=='luxury' %}selected{% endif %}>Luxury</option>
+                    <label for="vehicle_type">Vehicle type</label>
+
+                    <select id="vehicle_type" name="vehicle_type" required>
+                        <option value="" disabled selected>Select a vehicle type</option>
+                        <option value="sedan">Sedan</option>
+                        <option value="suv">SUV</option>
+                        <option value="truck">Truck</option>
+                        <option value="luxury">Luxury</option>
                     </select>
                 </div>
 
+                <!-- Condition -->
                 <div class="field">
                     <label for="condition">Condition</label>
-                    <select id="condition" name="condition">
-                        <option value="excellent">Excellent — no visible wear</option>
-                        <option value="good" selected>Good — normal wear for its age</option>
-                        <option value="fair">Fair — some cosmetic or mechanical issues</option>
-                        <option value="poor">Poor — significant issues</option>
+
+                    <select id="condition" name="condition" required>
+                        <option value="excellent">
+                            Excellent — no visible wear
+                        </option>
+
+                        <option value="good" selected>
+                            Good — normal wear for its age
+                        </option>
+
+                        <option value="fair">
+                            Fair — some cosmetic or mechanical issues
+                        </option>
+
+                        <option value="poor">
+                            Poor — significant issues
+                        </option>
                     </select>
                 </div>
 
-                <button class="btn btn-accent btn-block" type="submit">Calculate my value</button>
+                <button id="calculate-button" class="btn btn-accent btn-block" type="submit">
+                    <span class="button-text">Calculate my value</span>
+                </button>
+
+                <p id="valuation-status" class="valuation-status" aria-live="polite"></p>
+
             </form>
 
-            <p class="form-foot">Prefer to browse first? <a href="/history">See past valuations →</a></p>
+            <p class="form-foot">
+                Prefer to browse first?
+                <a href="{{ url_for('history') }}">
+                    See past valuations →
+                </a>
+            </p>
         </div>
 
+        <!-- Side panel -->
         <div class="side-panel">
+
             <h2>What you'll get</h2>
-            <p>One estimate isn't enough to negotiate with. Your result page breaks it down three ways, sourced from multiple pricing signals.</p>
+
+            <p>
+                We compare our depreciation estimate with external
+                market pricing to give you more context around your
+                vehicle's value.
+            </p>
+
             <div class="side-list">
+
                 <div class="side-item">
-                    <i class="bx bx-git-compare"></i>
+                    <i class="bx bx-calculator"></i>
+
                     <div>
-                        <h4>Trade-in, private-party &amp; dealer values</h4>
-                        <p>Know your number for every way you might sell.</p>
+                        <h4>CarValue estimate</h4>
+
+                        <p>
+                            Our model considers age, mileage,
+                            vehicle type, and condition.
+                        </p>
                     </div>
                 </div>
+
                 <div class="side-item">
                     <i class="bx bx-line-chart"></i>
+
                     <div>
-                        <h4>Current market trends</h4>
-                        <p>See how similar vehicles are pricing right now.</p>
+                        <h4>Current market value</h4>
+
+                        <p>
+                            MarketCheck gives us an external
+                            market-value comparison using your VIN,
+                            mileage, and ZIP code.
+                        </p>
                     </div>
                 </div>
+
+                <div class="side-item">
+                    <i class="bx bx-git-compare"></i>
+
+                    <div>
+                        <h4>Side-by-side comparison</h4>
+
+                        <p>
+                            See how our depreciation estimate compares
+                            with current market pricing.
+                        </p>
+                    </div>
+                </div>
+
                 <div class="side-item">
                     <i class="bx bx-bulb"></i>
+
                     <div>
-                        <h4>A plain-English recommendation</h4>
-                        <p>Sell now, wait, or hold — with the reasoning behind it.</p>
+                        <h4>Easy-to-understand explanation</h4>
+
+                        <p>
+                            See how age, mileage, and condition
+                            affected your estimate.
+                        </p>
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -110,44 +226,200 @@
 </section>
 {% endblock %}
 
+
 {% block page_js %}
 <script>
-    // Small dependent dropdown so "Model" only ever shows models that exist
-    // for the selected make — another guardrail against free-text mistakes.
     const MODELS_BY_MAKE = {
-        "Toyota": ["Camry", "Corolla", "RAV4", "Highlander", "Tacoma"],
-        "Honda": ["Civic", "Accord", "CR-V", "Pilot", "Odyssey"],
-        "Ford": ["F-150", "Escape", "Explorer", "Mustang", "Focus"],
-        "Chevrolet": ["Silverado", "Equinox", "Malibu", "Tahoe", "Camaro"],
-        "BMW": ["3 Series", "5 Series", "X3", "X5", "M4"],
-        "Mercedes-Benz": ["C-Class", "E-Class", "GLC", "GLE", "S-Class"],
-        "Tesla": ["Model 3", "Model Y", "Model S", "Model X"],
-        "Mazda": ["Mazda3", "CX-5", "CX-30", "Mazda6"],
-        "Subaru": ["Outback", "Forester", "Crosstrek", "Impreza"],
-        "Jeep": ["Wrangler", "Grand Cherokee", "Cherokee", "Compass"]
+        "Toyota": [
+            "Camry",
+            "Corolla",
+            "RAV4",
+            "Highlander",
+            "Tacoma"
+        ],
+
+        "Honda": [
+            "Civic",
+            "Accord",
+            "CR-V",
+            "Pilot",
+            "Odyssey"
+        ],
+
+        "Ford": [
+            "F-150",
+            "Escape",
+            "Explorer",
+            "Mustang",
+            "Focus"
+        ],
+
+        "Chevrolet": [
+            "Silverado",
+            "Equinox",
+            "Malibu",
+            "Tahoe",
+            "Camaro"
+        ],
+
+        "BMW": [
+            "3 Series",
+            "5 Series",
+            "X3",
+            "X5",
+            "M4"
+        ],
+
+        "Mercedes-Benz": [
+            "C-Class",
+            "E-Class",
+            "GLC",
+            "GLE",
+            "S-Class"
+        ],
+
+        "Tesla": [
+            "Model 3",
+            "Model Y",
+            "Model S",
+            "Model X"
+        ],
+
+        "Mazda": [
+            "Mazda3",
+            "CX-5",
+            "CX-30",
+            "Mazda6"
+        ],
+
+        "Subaru": [
+            "Outback",
+            "Forester",
+            "Crosstrek",
+            "Impreza"
+        ],
+
+        "Jeep": [
+            "Wrangler",
+            "Grand Cherokee",
+            "Cherokee",
+            "Compass"
+        ]
     };
 
-    const makeSelect = document.getElementById("make");
-    const modelSelect = document.getElementById("model");
-    const selectedMake = "{{ result.make if result else '' }}";
-    const selectedModel = "{{ result.model if result else '' }}";
 
-    function populateModels(make, preselect) {
-        const models = MODELS_BY_MAKE[make] || [];
+    const makeSelect =
+        document.getElementById("make");
+
+    const modelSelect =
+        document.getElementById("model");
+
+    const vinInput =
+        document.getElementById("vin");
+
+    const zipInput =
+        document.getElementById("zip_code");
+
+    const valuationForm =
+        document.getElementById("valuation-form");
+
+    const calculateButton =
+        document.getElementById("calculate-button");
+
+    const statusMessage =
+        document.getElementById("valuation-status");
+
+
+    function populateModels(make) {
+
+        const models =
+            MODELS_BY_MAKE[make] || [];
+
         modelSelect.innerHTML = "";
+
         if (!models.length) {
-            modelSelect.innerHTML = '<option value="" disabled selected>Select a make first</option>';
+
+            modelSelect.disabled = true;
+
+            modelSelect.innerHTML =
+                '<option value="" disabled selected>' +
+                'Select a make first' +
+                '</option>';
+
             return;
         }
-        modelSelect.innerHTML = models
-            .map((m) => `<option value="${m}" ${m === preselect ? "selected" : ""}>${m}</option>`)
-            .join("");
+
+        modelSelect.disabled = false;
+
+        modelSelect.innerHTML =
+            '<option value="" disabled selected>' +
+            'Select a model' +
+            '</option>';
+
+        models.forEach((model) => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = model;
+            option.textContent = model;
+
+            modelSelect.appendChild(option);
+        });
     }
 
-    makeSelect.addEventListener("change", () => populateModels(makeSelect.value, ""));
 
-    if (selectedMake) {
-        populateModels(selectedMake, selectedModel);
-    }
+    makeSelect.addEventListener(
+        "change",
+        () => populateModels(makeSelect.value)
+    );
+
+
+    // VINs are conventionally uppercase.
+    vinInput.addEventListener(
+        "input",
+        () => {
+
+            vinInput.value =
+                vinInput.value
+                    .toUpperCase()
+                    .replace(/[^A-HJ-NPR-Z0-9]/g, "")
+                    .slice(0, 17);
+        }
+    );
+
+
+    // ZIP should only contain numbers.
+    zipInput.addEventListener(
+        "input",
+        () => {
+
+            zipInput.value =
+                zipInput.value
+                    .replace(/\D/g, "")
+                    .slice(0, 5);
+        }
+    );
+
+
+    valuationForm.addEventListener(
+        "submit",
+        () => {
+
+            if (!valuationForm.checkValidity()) {
+                return;
+            }
+
+            calculateButton.disabled = true;
+
+            calculateButton.querySelector(
+                ".button-text"
+            ).textContent =
+                "Checking market data...";
+
+            statusMessage.textContent =
+                "Calculating your estimate and checking current market pricing.";
+        }
+    );
 </script>
 {% endblock %}

@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-
 {% extends "base.html" %}
 {% block title %}Your Estimate — CarValue{% endblock %}
 
@@ -9,404 +7,541 @@
 
 {% block content %}
 <section class="results">
-    <div class="container results-grid">
 
-        <!-- Headline value + breakdown -->
-        <div class="value-card">
-            <span class="eyebrow">Estimated value</span>
-            <h1>${{ value }}</h1>
-            <div class="vehicle-name">
-                {{ vehicle.make ~ ' ' ~ vehicle.model if vehicle and (vehicle.make or vehicle.model) else 'Your vehicle' }}
-                {% if vehicle and vehicle.age %} · {{ vehicle.age }} yr{% endif %}
-                {% if vehicle and vehicle.mileage %} · {{ vehicle.mileage }} mi{% endif %}
-            </div>
+    <div class="container">
 
-            <div class="confidence"><i class="bx bx-check-shield"></i> {{ confidence if confidence else 92 }}% confidence — based on {{ source_count if source_count else 3 }} pricing sources</div>
+        <!-- Page heading -->
+        <div class="results-heading">
 
-            <div class="price-variants">
-                <div class="price-variant is-primary">
-                    <span>Private party value</span>
-                    <strong>${{ price_variants.private_party if price_variants else value }}</strong>
-                </div>
-                <div class="price-variant">
-                    <span>Trade-in value</span>
-                    <strong>${{ price_variants.trade_in if price_variants else value }}</strong>
-                </div>
-                <div class="price-variant">
-                    <span>Dealer retail value</span>
-                    <strong>${{ price_variants.dealer_retail if price_variants else value }}</strong>
-                </div>
-            </div>
+            <span class="eyebrow">
+                Vehicle valuation
+            </span>
 
-            {% if breakdown %}
-            <div class="breakdown">
-                <div class="breakdown-row"><span>Original price</span><span>${{ breakdown.price }}</span></div>
-                <div class="breakdown-row"><span>Age depreciation ({{ breakdown.age }} yr)</span><span>-${{ breakdown.age_loss }}</span></div>
-                <div class="breakdown-row"><span>Mileage adjustment</span><span>-${{ breakdown.mile_loss }}</span></div>
-                <div class="breakdown-row total"><span>Value retained</span><span>{{ breakdown.retain_pct }}%</span></div>
-            </div>
-            {% endif %}
+            <h1>
+                {{ vehicle.make }} {{ vehicle.model }}
+            </h1>
 
-            <a href="/evaluate" class="btn btn-outline-invert btn-block">← Recalculate</a>
+            <p>
+                {{ vehicle.age }} years old
+                ·
+                {{ "{:,}".format(vehicle.mileage) }} miles
+                ·
+                {{ vehicle.condition|title }} condition
+            </p>
+
         </div>
 
-        <!-- Insight stack -->
-        <div class="insight-stack">
 
-            <div class="insight-card surface">
-                <span class="reco-badge {{ recommendation.tone if recommendation else 'sell' }}">
-                    {{ recommendation.action if recommendation else 'Sell Now' }}
+        <!-- Main comparison -->
+        <div class="valuation-comparison">
+
+            <!-- CarValue Model -->
+            <div class="comparison-card surface">
+
+                <div class="comparison-label">
+                    <i class="bx bx-calculator"></i>
+                    CarValue Model
+                </div>
+
+                <span class="comparison-description">
+                    Our depreciation estimate
                 </span>
-                <h3>Why your car is worth this</h3>
-                <p class="card-sub">
-                    {{ recommendation.reasoning if recommendation else
-                       "Market demand is currently strong for this vehicle, and depreciation has slowed compared to earlier years — making this a good window to sell." }}
+
+                <strong class="comparison-price">
+                    ${{ "{:,.0f}".format(value) }}
+                </strong>
+
+                <p>
+                    Calculated using the vehicle's age,
+                    mileage, type, and condition.
                 </p>
-                <div class="source-tags">
-                    {% for source in sources %}
-                    <span class="source-tag">{{ source }}</span>
-                    {% else %}
-                    <span class="source-tag">Depreciation model</span>
-                    <span class="source-tag">Live marketplace listings</span>
-                    <span class="source-tag">Regional demand index</span>
-                    {% endfor %}
-                </div>
+
             </div>
 
-            <div class="insight-card surface">
-                <h3>Market trends</h3>
-                <p class="card-sub">How this vehicle has moved over the last 90 days</p>
-                {% for trend in market_trends %}
-                <div class="trend-row">
-                    <span>{{ trend.label }}</span>
-                    <span class="delta {{ 'up' if trend.direction == 'up' else 'down' }}">
-                        {{ '+' if trend.direction == 'up' else '-' }}{{ trend.change }}
+
+            <!-- MarketCheck -->
+            <div class="comparison-card surface market-card">
+
+                <div class="comparison-label">
+                    <i class="bx bx-line-chart"></i>
+                    Current Market Value
+                </div>
+
+                {% if market_value %}
+
+                    <span class="comparison-description">
+                        External market estimate
                     </span>
-                </div>
+
+                    <strong class="comparison-price">
+                        ${{ "{:,.0f}".format(market_value) }}
+                    </strong>
+
+                    {% if market_source %}
+                    <span class="market-source">
+                        Market data provided by
+                        {{ market_source }}
+                    </span>
+                    {% endif %}
+
                 {% else %}
-                <div class="trend-row"><span>Average asking price</span><span class="delta up">+2.1%</span></div>
-                <div class="trend-row"><span>Days on market</span><span class="delta down">-4 days</span></div>
-                <div class="trend-row"><span>Local demand</span><span class="delta up">High</span></div>
-                {% endfor %}
+
+                    <div class="market-unavailable">
+
+                        <i class="bx bx-info-circle"></i>
+
+                        <strong>
+                            Market data unavailable
+                        </strong>
+
+                        <p>
+                            We couldn't retrieve live market pricing
+                            right now. Your CarValue estimate is still
+                            available.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
             </div>
 
-            <div class="insight-card surface">
-                <h3>Similar local listings</h3>
-                <p class="card-sub">Comparable vehicles currently listed near you</p>
-                {% for listing in similar_listings %}
-                <div class="listing-row">
-                    <span>{{ listing.title }}<br><span class="loc">{{ listing.location }}</span></span>
-                    <strong>${{ listing.price }}</strong>
-                </div>
-                {% else %}
-                <div class="listing-row"><span>2020 Honda Civic LX<br><span class="loc">Brooklyn, NY · 12 mi away</span></span><strong>$18,900</strong></div>
-                <div class="listing-row"><span>2020 Honda Civic EX<br><span class="loc">Newark, NJ · 18 mi away</span></span><strong>$19,650</strong></div>
-                <div class="listing-row"><span>2019 Honda Civic LX<br><span class="loc">Queens, NY · 9 mi away</span></span><strong>$17,200</strong></div>
-                {% endfor %}
-            </div>
+        </div>
 
-            <div class="insight-card surface">
-                <h3>Recent queries</h3>
-                <ul class="history-mini">
-                    {% for item in recent_queries %}
-                    <li>
-                        <span>{{ item.make }} {{ item.model }}</span>
-                        <span>${{ item.estimated_value }} <span class="date">· {{ item.created_at }}</span></span>
-                    </li>
+
+        <!-- Difference between models -->
+        {% if market_value %}
+
+            {% set difference = market_value - value %}
+
+            <div class="market-difference surface">
+
+                <div>
+
+                    <span class="eyebrow">
+                        Market comparison
+                    </span>
+
+                    <h2>
+                        How does our estimate compare?
+                    </h2>
+
+                </div>
+
+                <div class="difference-value">
+
+                    {% if difference > 0 %}
+
+                        Market value is
+                        <strong>
+                            ${{ "{:,.0f}".format(difference) }}
+                            higher
+                        </strong>
+                        than our model.
+
+                    {% elif difference < 0 %}
+
+                        Market value is
+                        <strong>
+                            ${{ "{:,.0f}".format(difference|abs) }}
+                            lower
+                        </strong>
+                        than our model.
+
                     {% else %}
-                    <li><span>No past queries yet</span></li>
-                    {% endfor %}
-                </ul>
-                <a href="/history">View full history →</a>
+
+                        Our estimate matches the current
+                        market estimate.
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+
+        <div class="results-grid">
+
+            <!-- Left side -->
+            <div class="value-card">
+
+                <span class="eyebrow">
+                    CarValue estimate
+                </span>
+
+                <h2>
+                    ${{ "{:,.0f}".format(value) }}
+                </h2>
+
+
+                <!-- Selling scenarios -->
+                <div class="price-variants">
+
+                    <div class="price-variant is-primary">
+
+                        <span>
+                            Private-party estimate
+                        </span>
+
+                        <strong>
+                            ${{ "{:,.0f}".format(
+                                price_variants.private_party
+                            ) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="price-variant">
+
+                        <span>
+                            Trade-in scenario
+                        </span>
+
+                        <strong>
+                            ${{ "{:,.0f}".format(
+                                price_variants.trade_in
+                            ) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="price-variant">
+
+                        <span>
+                            Dealer retail scenario
+                        </span>
+
+                        <strong>
+                            ${{ "{:,.0f}".format(
+                                price_variants.dealer_retail
+                            ) }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <p class="scenario-note">
+                    These three values are generated by the
+                    CarValue model and are not dealer offers.
+                </p>
+
+
+                <!-- Breakdown -->
+                {% if breakdown %}
+
+                <div class="breakdown">
+
+                    <div class="breakdown-row">
+
+                        <span>
+                            Original price
+                        </span>
+
+                        <span>
+                            ${{ "{:,.0f}".format(
+                                breakdown.price
+                            ) }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="breakdown-row">
+
+                        <span>
+                            Age depreciation
+                            ({{ breakdown.age }} yr)
+                        </span>
+
+                        <span>
+                            -${{ "{:,.0f}".format(
+                                breakdown.age_loss
+                            ) }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="breakdown-row">
+
+                        <span>
+                            Excess mileage adjustment
+                        </span>
+
+                        <span>
+                            -${{ "{:,.0f}".format(
+                                breakdown.mile_loss
+                            ) }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="breakdown-row total">
+
+                        <span>
+                            Original value retained
+                        </span>
+
+                        <span>
+                            {{ breakdown.retain_pct }}%
+                        </span>
+
+                    </div>
+
+                </div>
+
+                {% endif %}
+
+
+                <a
+                    href="{{ url_for('evaluate') }}"
+                    class="btn btn-outline-invert btn-block"
+                >
+                    ← Calculate another vehicle
+                </a>
+
+            </div>
+
+
+            <!-- Right side -->
+            <div class="insight-stack">
+
+                <!-- Recommendation -->
+                <div class="insight-card surface">
+
+                    <span
+                        class="reco-badge {{ recommendation.tone }}"
+                    >
+                        {{ recommendation.action }}
+                    </span>
+
+                    <h3>
+                        Understanding your estimate
+                    </h3>
+
+                    <p class="card-sub">
+                        {{ recommendation.reasoning }}
+                    </p>
+
+                    <div class="source-tags">
+
+                        <span class="source-tag">
+                            CarValue depreciation model
+                        </span>
+
+                        {% if market_value %}
+
+                        <span class="source-tag">
+                            MarketCheck market data
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- Market information -->
+                <div class="insight-card surface">
+
+                    <h3>
+                        Market information
+                    </h3>
+
+                    {% if market_value %}
+
+                        <div class="market-info-row">
+
+                            <span>
+                                Market estimate
+                            </span>
+
+                            <strong>
+                                ${{ "{:,.0f}".format(
+                                    market_value
+                                ) }}
+                            </strong>
+
+                        </div>
+
+
+                        {% if market_msrp %}
+
+                        <div class="market-info-row">
+
+                            <span>
+                                MarketCheck MSRP
+                            </span>
+
+                            <strong>
+                                ${{ "{:,.0f}".format(
+                                    market_msrp
+                                ) }}
+                            </strong>
+
+                        </div>
+
+                        {% endif %}
+
+
+                        <div class="market-info-row">
+
+                            <span>
+                                ZIP code
+                            </span>
+
+                            <strong>
+                                {{ vehicle.zip_code }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="market-info-row">
+
+                            <span>
+                                Data source
+                            </span>
+
+                            <strong>
+                                {{ market_source or "MarketCheck" }}
+                            </strong>
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="market-unavailable">
+
+                            <i class="bx bx-info-circle"></i>
+
+                            <p>
+                                MarketCheck data could not be
+                                retrieved for this valuation.
+                                The estimate shown above comes
+                                from the CarValue model.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- Vehicle details -->
+                <div class="insight-card surface">
+
+                    <h3>
+                        Vehicle details
+                    </h3>
+
+                    <div class="vehicle-detail-row">
+                        <span>Vehicle</span>
+
+                        <strong>
+                            {{ vehicle.make }}
+                            {{ vehicle.model }}
+                        </strong>
+                    </div>
+
+                    <div class="vehicle-detail-row">
+                        <span>Type</span>
+
+                        <strong>
+                            {{ vehicle.vehicle_type|title }}
+                        </strong>
+                    </div>
+
+                    <div class="vehicle-detail-row">
+                        <span>Condition</span>
+
+                        <strong>
+                            {{ vehicle.condition|title }}
+                        </strong>
+                    </div>
+
+                    <div class="vehicle-detail-row">
+                        <span>Age</span>
+
+                        <strong>
+                            {{ vehicle.age }} years
+                        </strong>
+                    </div>
+
+                    <div class="vehicle-detail-row">
+                        <span>Mileage</span>
+
+                        <strong>
+                            {{ "{:,}".format(
+                                vehicle.mileage
+                            ) }} mi
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <!-- Recent history -->
+                <div class="insight-card surface">
+
+                    <h3>
+                        Recent valuations
+                    </h3>
+
+                    <ul class="history-mini">
+
+                        {% for item in recent_queries %}
+
+                        <li>
+
+                            <span>
+                                {{ item.make }}
+                                {{ item.model }}
+                            </span>
+
+                            <span>
+                                ${{ "{:,.0f}".format(
+                                    item.estimated_value
+                                ) }}
+
+                                <span class="date">
+                                    · {{ item.created_at }}
+                                </span>
+                            </span>
+
+                        </li>
+
+                        {% else %}
+
+                        <li>
+                            <span>
+                                No past valuations yet
+                            </span>
+                        </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                    <a href="{{ url_for('history') }}">
+                        View full history →
+                    </a>
+
+                </div>
+
             </div>
 
         </div>
 
     </div>
+
 </section>
 {% endblock %}
-=======
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Car Value Results</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
-
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
-
-    body {
-      background: linear-gradient(to right, #e2e2e2, #c9d6ff);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 2rem;
-    }
-
-    .container {
-      background-color: #fff;
-      border-radius: 30px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.35);
-      position: relative;
-      overflow: hidden;
-      width: 768px;
-      max-width: 100%;
-      min-height: 520px;
-      display: flex;
-    }
-
-    .form-container {
-      width: 50%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2.5rem 2.5rem;
-      background: #fff;
-      z-index: 2;
-      overflow-y: auto;
-    }
-
-    .form-container h1 {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      color: #333;
-      align-self: flex-start;
-    }
-
-    .form-container span {
-      font-size: 12px;
-      color: #aaa;
-      margin-bottom: 1rem;
-      align-self: flex-start;
-    }
-
-    .result-row {
-      background-color: #eee;
-      border-radius: 8px;
-      margin: 5px 0;
-      padding: 10px 15px;
-      font-size: 13px;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .result-row .label { color: #888; font-weight: 500; }
-    .result-row .val   { color: #333; font-weight: 600; }
-    .result-row.highlight .val { color: #512da8; font-size: 16px; font-weight: 700; }
-
-    .section-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #bbb;
-      font-weight: 600;
-      margin: 10px 0 2px;
-      align-self: flex-start;
-    }
-
-    .narrative-box {
-      background-color: #eee;
-      border-radius: 8px;
-      margin: 5px 0;
-      padding: 10px 15px;
-      font-size: 12px;
-      color: #555;
-      line-height: 1.65;
-      width: 100%;
-      border-left: 3px solid #512da8;
-    }
-
-    .history-box {
-      background-color: #eee;
-      border-radius: 8px;
-      margin: 5px 0;
-      padding: 10px 15px;
-      font-size: 11px;
-      color: #888;
-      width: 100%;
-    }
-
-    .history-box li {
-      list-style: none;
-      padding: 3px 0;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .history-box li:last-child { border-bottom: none; }
-
-    .history-box a {
-      display: block;
-      margin-top: 6px;
-      font-size: 11px;
-      color: #512da8;
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    .back-btn {
-      background-color: #512da8;
-      color: #fff;
-      font-size: 12px;
-      padding: 10px 45px;
-      border: 1px solid transparent;
-      border-radius: 8px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-top: 14px;
-      cursor: pointer;
-      width: 100%;
-      text-align: center;
-      text-decoration: none;
-      display: block;
-      transition: opacity 0.2s;
-      font-family: inherit;
-    }
-
-    .back-btn:hover { opacity: 0.85; }
-
-    .toggle-container {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      width: 50%;
-      height: 100%;
-      overflow: hidden;
-      border-radius: 150px 0 0 100px;
-      z-index: 1000;
-    }
-
-    .toggle {
-      background: linear-gradient(to right, #5c6bc0, #512da8);
-      color: #fff;
-      height: 100%;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      text-align: center;
-    }
-
-    .toggle svg {
-      width: 60px; height: 60px;
-      margin-bottom: 1.25rem;
-      opacity: 0.9;
-    }
-
-    .toggle h1 { font-size: 24px; font-weight: 700; margin-bottom: 0.5rem; }
-
-    .toggle .big-value {
-      font-size: 40px;
-      font-weight: 700;
-      letter-spacing: -1px;
-      margin-bottom: 0.75rem;
-    }
-
-    .toggle p {
-      font-size: 13px;
-      line-height: 1.7;
-      color: rgba(255,255,255,0.75);
-      margin-bottom: 1.5rem;
-      letter-spacing: 0.3px;
-    }
-
-    .toggle a {
-      background-color: transparent;
-      color: #fff;
-      font-size: 12px;
-      padding: 10px 45px;
-      border: 1px solid #fff;
-      border-radius: 8px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      cursor: pointer;
-      text-decoration: none;
-      font-family: inherit;
-      transition: background 0.2s;
-    }
-
-    .toggle a:hover { background: rgba(255,255,255,0.15); }
-  </style>
-</head>
-<body>
-
-<div class="container">
-
-  <!-- Left: All results in one container -->
-  <div class="form-container">
-    <h1>Your Results</h1>
-    <span>Vehicle valuation breakdown</span>
-
-    <div class="result-row highlight">
-      <span class="label">Estimated Value</span>
-      <span class="val">${{ value }}</span>
-    </div>
-
-    <div class="section-label">Why Your Car Is Worth This</div>
-
-    <div class="result-row">
-      {% if recommendation %}
-      <span class="label">{{ recommendation["action"] }}</span>
-      {% else %}
-      <span class="label">No explanation available.</span>
-      {% endif %}
-    </div>
-
-    {% if narrative %}
-    <div class="narrative-box">{{ narrative }}</div>
-    {% endif %}
-
-    <div class="section-label">Recent Queries</div>
-    <div class="history-box">
-      <ul>
-        {% for item in recent_queries %}
-        <li>{{ item.make }} {{ item.model }} — ${{ item.estimated_value }} — {{ item.created_at }}</li>
-        {% else %}
-        <li>No past queries yet.</li>
-        {% endfor %}
-      </ul>
-      <a href="/history">View full history →</a>
-    </div>
-
-    <a class="back-btn" href="/">← Recalculate</a>
-  </div>
-
-  <!-- Right: Toggle panel -->
-  <div class="toggle-container">
-    <div class="toggle">
-      <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="56" height="56" rx="16" fill="rgba(255,255,255,0.08)"/>
-        <path d="M10 30l4-10h28l4 10" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round"/>
-        <rect x="8" y="30" width="40" height="10" rx="3" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
-        <circle cx="17" cy="42" r="3.5" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/>
-        <circle cx="39" cy="42" r="3.5" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/>
-      </svg>
-
-      <h1>Estimate Complete</h1>
-      <div class="big-value">${{ value }}</div>
-      <p>
-        {% if recommendation %}
-          {{ recommendation["reasoning"] }}
-        {% else %}
-          Your vehicle's value has been calculated based on age, mileage, and depreciation.
-        {% endif %}
-      </p>
-      <a href="/">← Recalculate</a>
-    </div>
-  </div>
-
-</div>
-
-</body>
-</html>
->>>>>>> 6b61039cf293e630bba18734b0d0032baf1eab01

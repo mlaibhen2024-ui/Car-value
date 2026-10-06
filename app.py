@@ -1,21 +1,33 @@
 import os
-<<<<<<< HEAD
 import re
+import db as db
+import pricing
+
+from market_api import MarketAPIError, get_market_value
 from functools import wraps
 
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
-import db
-import pricing
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "carvalue-dev-secret")
 
+app.secret_key = os.environ.get("SECRET_KEY")
+
+if not app.secret_key:
+    raise RuntimeError(
+        "SECRET_KEY environment variable is not set."
+    )
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+)
 db.init_db()
-
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-
 
 MAKES = [
     "Toyota",
@@ -67,22 +79,89 @@ def evaluate():
         "evaluate.html",
         active_page="evaluate",
         makes=MAKES,
-        result=None,
     )
-
 
 @app.route("/calculate", methods=["POST"])
 @login_required
 def calculate():
-    make = request.form.get("make", "").strip() or "Honda"
-    model = request.form.get("model", "").strip() or "Civic"
-    vehicle_type = request.form.get("vehicle_type", "sedan")
-    condition = request.form.get("condition", "good")
+    # -----------------------------
+    # 1. Get form data
+    # -----------------------------
+    make = request.form.get("make", "").strip()
+    model = request.form.get("model", "").strip()
+    vehicle_type = request.form.get("vehicle_type", "").strip().lower()
+    condition = request.form.get("condition", "").strip().lower()
 
-    price = _to_float(request.form.get("price"), 30000)
-    age = _to_int(request.form.get("age"), 5)
-    mileage = _to_int(request.form.get("mileage"), 60000)
+    vin = request.form.get("vin", "").strip().upper()
+    zip_code = request.form.get("zip_code", "").strip()
 
+    # -----------------------------
+    # 2. Validate text fields
+    # -----------------------------
+    if not make or not model:
+        flash("Please select both the make and model.", "error")
+        return redirect(url_for("evaluate"))
+
+    if make not in MAKES:
+        flash("Please select a valid vehicle make.", "error")
+        return redirect(url_for("evaluate"))
+
+    if vehicle_type not in pricing.ANNUAL_DEPRECIATION_RATE:
+        flash("Please select a valid vehicle type.", "error")
+        return redirect(url_for("evaluate"))
+
+    if condition not in pricing.CONDITION_FACTOR:
+        flash("Please select a valid vehicle condition.", "error")
+        return redirect(url_for("evaluate"))
+
+    # -----------------------------
+    # 3. Validate VIN + ZIP
+    # -----------------------------
+    if not re.fullmatch(r"[A-HJ-NPR-Z0-9]{17}", vin):
+        flash("Please enter a valid 17-character VIN.", "error")
+        return redirect(url_for("evaluate"))
+
+    if not re.fullmatch(r"\d{5}", zip_code):
+        flash("Please enter a valid 5-digit ZIP code.", "error")
+        return redirect(url_for("evaluate"))
+
+    # -----------------------------
+    # 4. Validate numeric fields
+    # -----------------------------
+    try:
+        price = float(request.form.get("price", ""))
+        age = int(request.form.get("age", ""))
+        mileage = int(request.form.get("mileage", ""))
+    except (TypeError, ValueError):
+        flash(
+            "Please enter valid numbers for price, age, and mileage.",
+            "error",
+        )
+        return redirect(url_for("evaluate"))
+
+    if price < 500 or price > 1_000_000:
+        flash(
+            "Original price must be between $500 and $1,000,000.",
+            "error",
+        )
+        return redirect(url_for("evaluate"))
+
+    if age < 0 or age > 50:
+        flash(
+            "Vehicle age must be between 0 and 50 years.",
+            "error",
+        )
+        return redirect(url_for("evaluate"))
+
+    if mileage < 0 or mileage > 1_000_000:
+        flash(
+            "Mileage must be between 0 and 1,000,000 miles.",
+            "error",
+        )
+        return redirect(url_for("evaluate"))
+    # -----------------------------
+    # 5. Run our valuation model
+    # -----------------------------
     valuation = pricing.build_full_valuation(
         make=make,
         model=model,
@@ -93,93 +172,79 @@ def calculate():
         mileage=mileage,
     )
 
-    db.save_valuation(
-=======
-import threading
-import webbrowser
-from dotenv import load_dotenv
-load_dotenv()
+    # -----------------------------
+    # 6. Get MarketCheck value
+    # -----------------------------
+    try:
+        market_data = get_market_value(
+            vin=vin,
+            mileage=mileage,
+            zip_code=zip_code,
+        )
 
-from flask import Flask, render_template, request
-from genai_helper import generate_narrative
-from utils.depreciation import estimate_value
-from utils.ownership import estimate_costs
-from utils.recommendations import get_ai_recommendation, get_recommendation
-from utils.database import create_table, get_recent_valuations, save_valuation
+    except MarketAPIError as exc:
+        # MarketCheck failing should not break our valuation.
+        app.logger.warning(
+            "MarketCheck request failed: %s",
+            exc,
+        )
 
-app = Flask(__name__)
-create_table()
-
-
-@app.route("/", methods=["GET"])
-def home():
-    return render_template("landingpage.html")
-
-
-@app.route("/calculate", methods=["POST"])
-def calculate():
-    make = request.form["make"]
-    model = request.form["model"]
-    price = float(request.form["price"])
-    age = int(request.form["age"])
-    mileage = int(request.form["mileage"])
-    vehicle_type = request.form["vehicle_type"]
-
-    value = estimate_value(price, age, mileage, vehicle_type)
-    costs = estimate_costs(12000)
-    ai_recommendation = get_ai_recommendation(age, mileage, price, value)
-    recommendation = get_recommendation(age, mileage, estimated_value=value, price=price)
-    if ai_recommendation:
-        recommendation = {
-            "action": ai_recommendation.split("Action:", 1)[1].split("Reasoning:", 1)[0].strip(),
-            "reasoning": ai_recommendation.split("Reasoning:", 1)[1].strip(),
+        market_data = {
+            "market_price": None,
+            "msrp": None,
+            "source": None,
         }
-    narrative = generate_narrative(make, model, age, mileage, price, value)
 
-    save_valuation(
->>>>>>> 6b61039cf293e630bba18734b0d0032baf1eab01
-        make=make,
-        model=model,
-        vehicle_type=vehicle_type,
-        price=price,
-        age=age,
-        mileage=mileage,
-<<<<<<< HEAD
-        estimated_value=valuation["estimated_value"],
+    # -----------------------------
+    # 7. Save valuation
+    # -----------------------------
+ 
+    db.save_valuation(
+    user_id=session["user_id"],
+    make=make,
+    model=model,
+    vehicle_type=vehicle_type,
+    price=price,
+    age=age,
+    mileage=mileage,
+    estimated_value=valuation["estimated_value"],
+    )
+    
+    recent_queries = db.get_recent_valuations(
+    user_id=session["user_id"],
+    limit=5,
     )
 
-    recent_queries = db.get_recent_valuations(limit=5)
 
+    # -----------------------------
+    # 8. Show results
+    # -----------------------------
     return render_template(
         "results.html",
         active_page="results",
+
         value=valuation["estimated_value"],
-        vehicle={"make": make, "model": model, "age": age, "mileage": mileage},
-        confidence=92,
-        source_count=len(valuation["sources"]),
         price_variants=valuation["price_variants"],
         breakdown=valuation["breakdown"],
         recommendation=valuation["recommendation"],
-        sources=valuation["sources"],
-        market_trends=valuation["market_trends"],
-        similar_listings=valuation["similar_listings"],
-=======
-        estimated_value=value,
-    )
-    recent_queries = get_recent_valuations(limit=5)
 
-    return render_template(
-        "results.html",
-        value=value,
-        costs=costs,
-        recommendation=recommendation,
-        narrative=narrative,
->>>>>>> 6b61039cf293e630bba18734b0d0032baf1eab01
+        market_value=market_data["market_price"],
+        market_msrp=market_data["msrp"],
+        market_source=market_data["source"],
+
+        vehicle={
+            "make": make,
+            "model": model,
+            "age": age,
+            "mileage": mileage,
+            "vehicle_type": vehicle_type,
+            "condition": condition,
+            "vin": vin,
+            "zip_code": zip_code,
+        },
+
         recent_queries=recent_queries,
     )
-
-
-<<<<<<< HEAD
 @app.route("/results")
 @login_required
 def results():
@@ -192,13 +257,16 @@ def results():
 @app.route("/history")
 @login_required
 def history():
-    queries = db.get_recent_valuations(limit=20)
+    queries = db.get_recent_valuations(
+        user_id=session["user_id"],
+        limit=20,
+    )
+
     return render_template(
         "history.html",
         active_page="history",
         queries=queries,
     )
-
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -260,34 +328,12 @@ def login():
     return render_template("login.html", next_url=next_url)
 
 
-@app.route("/logout")
+@app.route("/logout", methods=["POST"])
+@login_required
 def logout():
-    session.pop("user_id", None)
-    session.pop("user", None)
+    session.clear()
     flash("You've been logged out.", "success")
     return redirect(url_for("home"))
 
-
 if __name__ == "__main__":
-    app.run(debug=True)
-=======
-@app.route("/history")
-def history():
-    queries = get_recent_valuations(limit=20)
-    return render_template("history.html", queries=queries)
-
-@app.route("/evaluate")
-def evaluate():
-    return render_template("index.html")
-
-
-def open_browser():
-    webbrowser.open_new("http://127.0.0.1:5000/")
-
-
-if __name__ == "__main__":
-    # Avoid opening two tabs when debug=True triggers the reloader
-    if not os.environ.get("WERKZEUG_RUN_MAIN"):
-        threading.Timer(1, open_browser).start()
-    app.run(debug=True)
->>>>>>> 6b61039cf293e630bba18734b0d0032baf1eab01
+    app.run()

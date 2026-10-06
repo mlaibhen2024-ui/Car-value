@@ -12,18 +12,11 @@ class AppTests(unittest.TestCase):
         response = self.client.get('/')
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'action="/"', response.data)
+        self.assertIn(b'href="/evaluate"', response.data)
         self.assertIn(b'method="post"', response.data)
         self.assertIn(b'/history', response.data)
 
 
-if __name__ == '__main__':
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+if __name__ == "__main__":
     unittest.main()
-=======
-    unittest.main()
->>>>>>> 6b61039cf293e630bba18734b0d0032baf1eab01
-=======
-    unittest.main()
->>>>>>> 6b61039cf293e630bba18734b0d0032baf1eab01

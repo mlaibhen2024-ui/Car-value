@@ -29,8 +29,7 @@ Run the app:
 python app.py
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 Then open your browser and go to the local address shown in the terminal.
 =======
 Then open your browser and go to the local address shown in the terminal.

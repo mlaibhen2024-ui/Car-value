@@ -9,7 +9,7 @@ from genai_helper import generate_narrative
 from utils.depreciation import estimate_value
 from utils.ownership import estimate_costs
 from utils.recommendations import get_ai_recommendation, get_recommendation
-from utils.database import create_table, get_recent_valuations, save_valuation
+from database import create_table, get_recent_valuations, save_valuation
 
 app = Flask(__name__)
 create_table()
